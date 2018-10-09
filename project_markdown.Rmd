@@ -1,0 +1,16 @@
+---
+title: "Coupled predator-prey models and its application in investing in stock market"
+author: "Aurél György Prósz, XGRP0J"
+date: '2018 október 9 '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Predator-prey models are important topics not only in biology, but in other fields like plasma physics[http://iopscience.iop.org/article/10.1088/0741-3335/56/1/015002], economics[https://www.sciencedirect.com/science/article/pii/0895717794900124], or even in criminology [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5043299/].  
+The first, simplest model originated from the study of fish populations of the Mediterranean after the first world war, by Lotka and Volterra. In their model there are two types of species: the prey, and the predator. They form a simple food-chain where the predator species hunts the prey species, while the prey grazes vegetation. Their behavior and the time evolution of the number of species are characterized by a simple system of two, nonlinear first order differential equations. By solving these equations we can have insights on how the number of predators and preys evolve in time.  
+In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so called prey companies, and sell them to a predator company. Last, but not least, I present a simple extension to this model, which can be used to model more than two prey companies.
+
+
