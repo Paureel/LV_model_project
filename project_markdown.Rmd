@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Predator-prey models are important topics not only in biology, but in other fields like plasma physics[http://iopscience.iop.org/article/10.1088/0741-3335/56/1/015002], economics[https://www.sciencedirect.com/science/article/pii/0895717794900124], or even in criminology [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5043299/].  
 The first, simplest model originated from the study of fish populations of the Mediterranean after the first world war, by Lotka and Volterra. In their model there are two types of species: the prey, and the predator. They form a simple food-chain where the predator species hunts the prey species, while the prey grazes vegetation. Their behavior and the time evolution of the number of species are characterized by a simple system of two, nonlinear first order differential equations. By solving these equations we can have insights on how the number of predators and preys evolve in time.  
-In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so called prey companies, and sell them to a predator company. Last, but not least, I present a simple extension to this model, which can be used to model more than two prey companies.
+In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [https://ijpam.eu/contents/2016-107-2/17/17.pdf], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so called prey companies, and sell them to a predator company. Last, but not least, I present a simple extension to this model, which can be used to model more than two prey companies.
 
 # Project goals
 
@@ -38,35 +38,102 @@ R package deSolve is the successor of R package odesolve, which is a package to 
 
 # Classical LV model
 
-This model describes the interaction of a predatory and a prey species. The predators try to catch the preys, thus increasing their population, and decreasing the prey’s. In this model the prey species has unlimited resources to feed, and in this way the population of the prey species grows exponentially. We can summarize the whole model in a system of nonlinear differential equations:
-Equation
+This model describes the interaction of a predatory and a prey species. The predators try to catch the preys, thus increasing their population, and decreasing the prey’s. In this model the prey species has unlimited resources to feed, and in this way the population of the prey species grows exponentially if no predatory species are present. We can summarize the whole model in a system of nonlinear differential equations:
+$$
+\frac{dx}{dt}= ax-bxy
+$$
+$$
+\frac{dy}{dt}= bkxy-ly
+$$
+where *x* and *y* are the prey and predator density, respectively, *a* and *l* determines how fast the preys reproduce and the predators die of hunger. *b* and *k* describes the interaction part of the equation, where *b* governs the interaction rate between the two species, and *k* is set the efficiency of which the predators converts prey to food.
+
 Source of errors
-```{r}
+```{r, echo=FALSE, warning=FALSE}
 library(deSolve)
 library(ggplot2)
 library(reshape2)
-LotVmod <- function (Time, State, Pars) {
+library(gridExtra)
+
+
+
+model_system <- function(model, Pars, State, grouped){
+  out <- as.data.frame(ode(func = model, y = State, parms = Pars, times = Time))
+  out.r <- within(out, rm(time))
+  out.m <- melt(out.r)
+  out.m$time <- out$time
+  if (grouped == TRUE){
+  return(out.m)
+  }
+  else{
+    return(out)
+  }
+}
+
+LotVmod_classical <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
         dx = x*(alpha - beta*y)
-        dy = -y*(gamma - delta*x)
+        dy = delta*x*y - gamma*y
         return(list(c(dx, dy)))
     })
 }
  
-Pars <- c(alpha = 2, beta = .5, gamma = .2, delta = .6)
+Pars <- c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02)
 State <- c(x = 10, y = 10)
-Time <- seq(0, 100, by = 1)
+Time <- seq(0, 200, by = 0.1)
  
-out <- as.data.frame(ode(func = LotVmod, y = State, parms = Pars, times = Time))
-out.r <- within(out, rm(time))
-out.m <- melt(out.r)
-out.m$time <- out$time
-p<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
+out.m <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
+                      c(x = 10, y = 10), TRUE)
+out <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
+                      c(x = 10, y = 10), FALSE)
+
+p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
   geom_line(aes(color=variable))+
-  geom_point(aes(color=variable))
-p
+  geom_point(aes(color=variable)) + 
+  labs(x = "Time",
+       y = "Species density",
+       title = "Time evolution of the prey and predator densities")
+
+p1
+
+p2<-ggplot(out, aes(x=x, y=y))+
+  geom_point(aes(color="red"))+ 
+  labs(x = "Prey density",
+       y = "Predator density",
+       title = "Phase space of prey and predator densities")
+p2
+grid.arrange(p1, p2, ncol=2)
 ```
-```{r}
+### Steady state
+
+```{r, echo=FALSE, warning=FALSE}
+out.m <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
+                      c(x = 20, y = 5), TRUE)
+out <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
+                      c(x = 20, y = 5), FALSE)
+
+p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
+  geom_line(aes(color=variable))+
+  geom_point(aes(color=variable))+ 
+  labs(x = "Time",
+       y = "Species density",
+       title = "Time evolution of the prey and predator densities in the steady state")
+p1
+
+p2<-ggplot(out, aes(x=x, y=y))+
+  geom_point(aes(color="red"))+ 
+  labs(x = "Prey density",
+       y = "Predator density",
+       title = "Phase space of prey and predator densities in the steady state")
+p2
+```
+
+
+
+## Discussion  
+
+On plot1 one can see that the solution of this model is an oscillatory behavior, where the prey and predator density rise and fall out of phase respect to each other.Plotting the x,y phase space on plot2 shows closed orbits, called limit cycles. However, the orbits are not perfectly closed due to the errors in the numerical integration of the equations.
+
+```{recho=FALSE, warning=FALSE}
 LotVmod <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
         dx = x*(alpha - beta*y)
@@ -90,6 +157,7 @@ p
 ```
 
 Pictures
+
 ## Derivation of steady state
 
 # LV model with prey limit and predator efficiency
@@ -98,6 +166,7 @@ This model extends the classical LV model in such a way, that it includes a so c
  Equation
 Source of errors
 Pictures
+
 # Two preys, one predator LV model
 
 This modification of the original LV model includes the extensions mentioned above, and also includes one more prey species. In reality there can be preys which can be hunted down more easily by the predator, and could have different carrying capacity. These biological information are included in the parameters of this model. 
