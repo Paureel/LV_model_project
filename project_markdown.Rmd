@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Predator-prey models are important topics not only in biology, but in other fields like plasma physics[http://iopscience.iop.org/article/10.1088/0741-3335/56/1/015002], economics[https://www.sciencedirect.com/science/article/pii/0895717794900124], or even in criminology [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5043299/].  
 The first, simplest model originated from the study of fish populations of the Mediterranean after the first world war, by Lotka and Volterra. In their model there are two types of species: the prey, and the predator. They form a simple food-chain where the predator species hunts the prey species, while the prey grazes vegetation. Their behavior and the time evolution of the number of species are characterized by a simple system of two, nonlinear first order differential equations. By solving these equations we can have insights on how the number of predators and preys evolve in time.  
-In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [https://ijpam.eu/contents/2016-107-2/17/17.pdf], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so called prey companies, and sell them to a predator company. Last, but not least, I present a simple extension to this model, which can be used to model more than two prey companies.
+In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [https://ijpam.eu/contents/2016-107-2/17/17.pdf], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so called prey companies, and sell them to a predator company.
 
 # Project goals
 
@@ -213,7 +213,7 @@ p2<-ggplot(out, aes(x=x, y=y))+
   labs(x = "Prey density",
        y = "Predator density",
        title = "Phase space of prey and predator densities")
-p2
+#p2
 ```
 
 
@@ -222,6 +222,18 @@ Source of errors
 Pictures
 
 # Stock market application
+
+Within recent times, application of models which originate from biology have become used in finance to describe the complex behavior of the stock market. There are multiple approaches [] which tries to apply the slightly modified version of the predator-prey models to analyze how venture capital investments exhaust the available stock of opportunities. A trader would be likely to make a more informed choice between competing stocks or shares based on comparisons among prices per share.  
+In the model described in this chapter the financially powerful trading company who wants to acquire smaller, financially weak companies, is the predator, while the smaller companies represent the prey. The predator makes a monetary offer for the prey shares. Once purchased, these shares are held until they are converted to predator shares.  
+The main objective is to simulate the system described above, and to make profit from the price changes.  
+In order for this to be profitable financially, the predator needs to have an
+estimate of the risk involved in this trade and this is based on changes in his
+predatory share prices.  
+Analyzing the simulation results can allow the trader to find the specific parameters which makes the system stable, and this would allow determine if the acquistion of prey company shares is profitable, or not.  
+
+
+
+
 ```{r}
 LotVmod_stock <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
@@ -237,9 +249,9 @@ LotVmod_stock <- function (Time, State, Pars) {
 
 Time <- seq(0, 500, by = 0.1)
  
-out.m <- model_system(LotVmod_stock, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+out.m <- model_system(LotVmod_stock, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01, m12 = 1), 
                       c(x1 = 30,x2 = 10 ,y = 10), TRUE)
-out <- model_system(LotVmod_stock, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+out <- model_system(LotVmod_stock, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01, m12 = 1), 
                       c(x1 = 30,x2 = 10 ,y = 10), FALSE)
 
 p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
@@ -256,6 +268,6 @@ p2<-ggplot(out, aes(x=x, y=y))+
   labs(x = "Prey density",
        y = "Predator density",
        title = "Phase space of prey and predator densities")
-p2
+#p2
 ```
 
