@@ -179,8 +179,83 @@ Pictures
 # Two preys, one predator LV model
 
 This modification of the original LV model includes the extensions mentioned above, and also includes one more prey species. In reality there can be preys which can be hunted down more easily by the predator, and could have different carrying capacity. These biological information are included in the parameters of this model. 
+
+```{r}
+LotVmod_twoprey <- function (Time, State, Pars) {
+    with(as.list(c(State, Pars)), {
+        
+        dx1 = x1*alpha1*(1-x1/K1) - (beta1*y*x1)/(1+beta1*x1*tau1) 
+        dx2 = x1*alpha2*(1-x1/K2) - (beta2*y*x2)/(1+beta2*x2*tau2)
+        dy = delta1*x1*y + delta2*x2*y - gamma*y
+        return(list(c(dx1,dx2 ,dy)))
+    })
+}
+ 
+
+Time <- seq(0, 500, by = 0.1)
+ 
+out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+                      c(x1 = 30,x2 = 10 ,y = 10), TRUE)
+out <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+                      c(x1 = 30,x2 = 10 ,y = 10), FALSE)
+
+p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
+  geom_line(aes(color=variable))+
+  geom_point(aes(color=variable)) + 
+  labs(x = "Time",
+       y = "Species density",
+       title = "Time evolution of the prey and predator densities")
+
+p1
+
+p2<-ggplot(out, aes(x=x, y=y))+
+  geom_point(aes(color="red"))+ 
+  labs(x = "Prey density",
+       y = "Predator density",
+       title = "Phase space of prey and predator densities")
+p2
+```
+
+
 Equation
 Source of errors
 Pictures
 
 # Stock market application
+```{r}
+LotVmod_stock <- function (Time, State, Pars) {
+    with(as.list(c(State, Pars)), {
+        r1 = NA
+        r2 = NA
+        dx1 = x1*alpha1*(1-x1/K1) - m12*x1*x2 - (beta1*y*x1)*r1
+        dx2 = x1*alpha2*(1-x1/K2) - (beta2*y*x2)*r2
+        dy = delta1*x1*y + delta2*x2*y - gamma*y
+        return(list(c(dx1,dx2 ,dy)))
+    })
+}
+ 
+
+Time <- seq(0, 500, by = 0.1)
+ 
+out.m <- model_system(LotVmod_stock, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+                      c(x1 = 30,x2 = 10 ,y = 10), TRUE)
+out <- model_system(LotVmod_stock, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+                      c(x1 = 30,x2 = 10 ,y = 10), FALSE)
+
+p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
+  geom_line(aes(color=variable))+
+  geom_point(aes(color=variable)) + 
+  labs(x = "Time",
+       y = "Species density",
+       title = "Time evolution of the prey and predator densities")
+
+p1
+
+p2<-ggplot(out, aes(x=x, y=y))+
+  geom_point(aes(color="red"))+ 
+  labs(x = "Prey density",
+       y = "Predator density",
+       title = "Phase space of prey and predator densities")
+p2
+```
+
