@@ -83,24 +83,39 @@ Time <- seq(0, 200, by = 0.1)
  
 out.m <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
                       c(x = 10, y = 10), TRUE)
-out <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
+out1 <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
                       c(x = 10, y = 10), FALSE)
+out2 <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
+                      c(x = 50, y = 10), FALSE)
+out3 <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
+                      c(x = 200, y = 10), FALSE)
 
-p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable))+
-  geom_point(aes(color=variable)) + 
+out1$preystart <- 10
+out2$preystart <- 50
+out3$preystart <- 200
+
+
+out.final <- rbind(out1,out2,out3)
+out.final$preystart <- as.factor(out.final$preystart)
+p1<-ggplot(out.m, aes(x=time, y=value, color=variable)) +
+  geom_line(aes(color=variable), size = 1)+
+  
   labs(x = "Time",
        y = "Species density",
-       title = "Time evolution of the prey and predator densities")
+       color = "Species",
+       title = "Time evolution of the prey and predator densities") +
+   theme(plot.title = element_text(size=8)) + theme(legend.position="bottom",legend.direction="horizontal")
 
-p1
 
-p2<-ggplot(out, aes(x=x, y=y))+
-  geom_point(aes(color="red"))+ 
+p2<-ggplot(out.final, aes(x=x, y=y, color = preystart))+
+  geom_point(aes(color=preystart), size = 0.05)+ 
   labs(x = "Prey density",
        y = "Predator density",
-       title = "Phase space of prey and predator densities")
-p2
+       color = "Prey initial number",
+       title = "Phase space of prey and predator densities")  +
+   theme(plot.title = element_text(size=8)) + theme(legend.position="bottom",legend.direction="horizontal")
+
+grid.arrange(p1, p2, ncol=2)
 ```
 ### Steady state
 
@@ -111,19 +126,22 @@ out <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, 
                       c(x = 20, y = 5), FALSE)
 
 p3<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable))+
-  geom_point(aes(color=variable))+ 
+  geom_line(aes(color=variable), size = 1)+
+  
   labs(x = "Time",
        y = "Species density",
-       title = "Time evolution of the prey and predator densities in the steady state")
-p3
+       title = "Time evolution of the prey and predator densities in the steady state")+ theme(legend.position="bottom",legend.direction="horizontal")+
+   theme(plot.title = element_text(size=8))
 
 p4<-ggplot(out, aes(x=x, y=y))+
-  geom_point(aes(color="red"))+ 
+  geom_point()+ 
   labs(x = "Prey density",
        y = "Predator density",
-       title = "Phase space of prey and predator densities in the steady state")
-p4
+       title = "Phase space of prey and predator densities in the steady state") + theme(legend.position="bottom",legend.direction="horizontal")+
+   theme(plot.title = element_text(size=8))
+
+
+grid.arrange(p3, p4, ncol=2)
 ```
 
 
