@@ -2,7 +2,10 @@
 title: "Coupled predator-prey models and its application in investing in stock market"
 author: "Aurél György Prósz, XGRP0J"
 date: '2018 október 9 '
-output: pdf_document
+output: 
+  pdf_document:
+    toc: true  
+
 ---
 
 ```{r setup, include=FALSE}
@@ -47,15 +50,15 @@ The particular function I used for the solutions is the *lsoda* function [].
 
 This model describes the interaction of a predatory and a prey species. The predators try to catch the preys, thus increasing their population, and decreasing the prey’s. In this model the prey species has unlimited resources to feed, and in this way the population of the prey species grows exponentially if no predatory species are present. We can summarize the whole model in a system of nonlinear differential equations:
 $$
-\frac{dx}{dt}= ax-bxy
+\frac{dX}{dt}= aX-bXY
 $$
 $$
-\frac{dy}{dt}= bkxy-ly
+\frac{dY}{dt}= bkXY-lY
 $$
 where *x* and *y* are the prey and predator density, respectively, *a* and *l* determines how fast the preys reproduce and the predators die of hunger. *b* and *k* describes the interaction part of the equation, where *b* governs the interaction rate between the two species, and *k* is set the efficiency of which the predators converts prey to food.
 
-Source of errors
-```{r, echo=FALSE, warning=FALSE}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(deSolve)
 library(ggplot2)
 library(reshape2)
@@ -124,9 +127,9 @@ p2<-ggplot(out.final, aes(x=x, y=y, color = preystart))+
 
 grid.arrange(p1, p2, ncol=2)
 ```
-### Steady state
 
-```{r, echo=FALSE, warning=FALSE}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 out.m <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
                       c(x = 20, y = 5), TRUE)
 out <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
@@ -161,8 +164,14 @@ On plot1 one can see that the solution of this model is an oscillatory behavior,
 # LV model with prey limit and predator efficiency
 
 This model extends the classical LV model in such a way, that it includes a so called K carrying capacity for the prey population, and a functional response palpha, as the probability a predator finds one prey. These two parameters makes the model more realistic, as in reality the resources available for the preys are not unlimited, and the hunt by the predators are not always successful, and takes time. 
+$$
+\frac{dX}{dt} = Xa(1-\frac{X}{K}) - \frac{bYX}{1+bX\tau}
+$$
+$$
+\frac{dY}{dt}= bkXY-lY
+$$
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 LotVmod_version2 <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
         dx = x*alpha*(1-x/K) - (beta*y*x)/(1+beta*x*tau)
@@ -205,12 +214,24 @@ Pictures
 
 This modification of the original LV model includes the extensions mentioned above, and also includes one more prey species. In reality there can be preys which can be hunted down more easily by the predator, and could have different carrying capacity. These biological information are included in the parameters of this model. 
 
-```{r}
+$$
+\frac{dX_{1}}{dt} = Xa_{1}(1-\frac{X_{1}}{K_{1}}) - \frac{b_{1}YX_{1}}{1+b_{1}X_{1}\tau_{1}}
+
+$$
+$$
+\frac{dX_{2}}{dt} = Xa_{2}(1-\frac{X_{2}}{K_{2}}) - \frac{b_{2}YX_{2}}{1+b_{2}X_{2}\tau_{2}}
+$$
+
+$$
+\frac{dY}{dt}= \delta X_{1}Y + \delta X_{2}Y-lY
+$$
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 LotVmod_twoprey <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
         
         dx1 = x1*alpha1*(1-x1/K1) - (beta1*y*x1)/(1+beta1*x1*tau1) 
-        dx2 = x1*alpha2*(1-x1/K2) - (beta2*y*x2)/(1+beta2*x2*tau2)
+        dx2 = x2*alpha2*(1-x2/K2) - (beta2*y*x2)/(1+beta2*x2*tau2)
         dy = delta1*x1*y + delta2*x2*y - gamma*y
         return(list(c(dx1,dx2 ,dy)))
     })
@@ -219,9 +240,9 @@ LotVmod_twoprey <- function (Time, State, Pars) {
 
 Time <- seq(0, 500, by = 0.1)
  
-out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
                       c(x1 = 30,x2 = 10 ,y = 10), TRUE)
-out <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.1, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+out <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
                       c(x1 = 30,x2 = 10 ,y = 10), FALSE)
 
 p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
@@ -242,10 +263,6 @@ p2<-ggplot(out, aes(x=x, y=y))+
 ```
 
 
-Equation
-Source of errors
-Pictures
-
 # Stock market application
 
 Within recent times, application of models which originate from biology have become used in finance to describe the complex behavior of the stock market. There are multiple approaches [] which tries to apply the slightly modified version of the predator-prey models to analyze how venture capital investments exhaust the available stock of opportunities. A trader would be likely to make a more informed choice between competing stocks or shares based on comparisons among prices per share.  
@@ -255,11 +272,42 @@ In order for this to be profitable financially, the predator needs to have an
 estimate of the risk involved in this trade and this is based on changes in his
 predatory share prices.  
 Analyzing the simulation results can allow the trader to find the specific parameters which makes the system stable, and this would allow determine if the acquistion of prey company shares is profitable, or not.  
+$$
+\frac{X_{1}}{dt} = \alpha_{1}X_{1}\left ( 1-\frac{X_{1}}{K_{1}} \right )-m_{12}X_{1}X_{2} - \beta X_{1}Yr_{1}
+$$
+
+$$
+\frac{X_{2}}{dt} = \alpha_{2}X_{2}\left ( 1-\frac{X_{2}}{K_{2}} \right )-m_{21}X_{1}X_{2} - \beta X_{2}Yr_{2}
+$$
+
+$$
+\frac{dY}{dt} = -\mu Y + c_{1}\beta_{1}X_{1}Yr_{1} + c_{2}\beta_{2}X_{2}Yr_{2}
+$$
+
+$$
+r1 = \frac{1}{1+\left ( \frac{a_{2}X_{2}+b_{2}Y}{X_{1}} \right )^{n}}
+$$
+
+$$
+r2 = \frac{1}{1+\left ( \frac{a_{1}X_{1}+b_{1}Y}{X_{2}} \right )^{n}}
+$$
+
+*X1* and *X2* are relative share prices of competing prey companies, *Y* is the relative price per share of the predator company. The parameters used in the model are all non-negative.  
+*alpha1* and *alpha2*: Intrinsic growth rate of prey share price,  
+*K1* and *K2*: Carrying capacity of prey shares,  
+*m12* and *m21*: Inter-specific competition between prey market shares,  
+*beta1* and *beta2*: Predatory capture rate  is the probability predator Y invests in prey X1 or X2,  
+*a1* and *a2*: Harvesting rate of prey shares,  
+*b1* and *b2*: Anti-predator behavior of prey shares,  
+*c1* and *c2*: Rate of conversion of prey shares to predator shares,  
+*mu*: Rate of decline of predator share price,  
+*n* : Multiplicative effect due to the predatory functional response.  
 
 
 
 
-```{r}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 LotVmod_stock <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
         r1 = 1/((1+(a2*x2+b2*y)^n)/x1)
