@@ -21,11 +21,13 @@ Implement and interpret the:
 * Classical LV model
 * Classical LV model at equilibrium
 * LV model with prey hill function and LV model with predator efficiency
-* LV model with two preys
+* LV model with one predator - two preys without interaction between the preys
 * LV model used in stock market
-* An extension to the LV model used in stock market
 
-My own contribution to the topic: blablabla
+## My own contribution to the topic
+
+The first three models are discussed in the [willeybook] already, but was implemented in Python. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
+The one predator - two preys model was discussed in [] and [], but with an interaction term included between the preys, so I found it interesting if I can analyze the results without the interactions.
 
 # Materials and methods
 ## R programming language
@@ -34,7 +36,12 @@ R is a language and environment for statistical computing and graphics. It is a 
 
 ## DeSolve library
 
-R package deSolve is the successor of R package odesolve, which is a package to solve initial value problems (IVP) of ordinary differential equations (ODE), differential algebraic equations (DAE), partial differential equations (PDE), and delay differential equations (DeDE). I used this package to solve the systems of nonlinear differential equations present in predator-prey models.
+R package deSolve is the successor of R package odesolve, which is a package to solve initial value problems (IVP) of ordinary differential equations (ODE), differential algebraic equations (DAE), partial differential equations (PDE), and delay differential equations (DeDE). I used this package to solve the systems of nonlinear differential equations present in predator-prey models.  
+The particular function I used for the solutions is the *lsoda* function [].
+
+## Possible source of errors
+
+
 
 # Classical LV model
 
@@ -290,7 +297,7 @@ p2<-ggplot(out, aes(x=x, y=y))+
   labs(x = "Prey density",
        y = "Predator density",
        title = "Phase space of prey and predator densities")
-p2
+#p2
 
 
 ```
