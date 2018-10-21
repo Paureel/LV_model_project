@@ -44,7 +44,9 @@ R is a language and environment for statistical computing and graphics. It is a 
 ## DeSolve library
 
 R package deSolve is the successor of R package odesolve, which is a package to solve initial value problems (IVP) of ordinary differential equations (ODE), differential algebraic equations (DAE), partial differential equations (PDE), and delay differential equations (DeDE). I used this package to solve the systems of nonlinear differential equations present in predator-prey models.  
-The particular function I used for the solutions is the *lsoda* function [@link].
+The particular function I used for the solutions is the *lsoda* function   
+
+[@link].
 
 ## Possible source of errors
 
@@ -177,12 +179,17 @@ out.m <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4
 out <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
                       c(x = 20, y = 5), FALSE)
 
-p3<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable), size = 1)+
+out.m$variable <- as.character(out.m$variable)
+out.m$variable[out.m$variable == "x"] <- "Prey"
+out.m$variable[out.m$variable == "y"] <- "Predator"
+names(out.m) <- c("Species", "value", "time")
+
+p3<-ggplot(out.m, aes(x=time, y=value, group=Species)) +
+  geom_line(aes(color=Species), size = 1)+
   
   labs(x = "Time",
        y = "Species density",
-       title = paste("Figure 3. Time evolution of the prey,",'\t', "and predator densities in the steady state"))+ theme(legend.position="bottom",legend.direction="horizontal")+
+       title = paste("Figure 3. Time evolution of the prey,",'\n', "and predator densities in the steady state"))+ theme(legend.position="bottom",legend.direction="horizontal")+
    theme(plot.title = element_text(size=6))
 
 p4<-ggplot(out, aes(x=x, y=y))+
@@ -252,8 +259,8 @@ p1<-ggplot(out.m, aes(x=time, y=value, color=variable)) +
   labs(x = "Time",
        y = "Species density",
        color = "Species",
-       title = "Time evolution of the prey and predator densities") +
-   theme(plot.title = element_text(size=8)) + theme(legend.position="bottom",legend.direction="horizontal")
+       title = paste("Figure 5. Time evolution of the prey and predator", '\n', "densities, as prey limit and predatory efficiency are included")) +
+   theme(plot.title = element_text(size=7)) + theme(legend.position="bottom",legend.direction="horizontal")
 
 
 p2<-ggplot(out, aes(x=x, y=y))+
@@ -261,14 +268,18 @@ p2<-ggplot(out, aes(x=x, y=y))+
   labs(x = "Prey density",
        y = "Predator density",
        color = "Prey initial number",
-       title = "Phase space of prey and predator densities")  +
-   theme(plot.title = element_text(size=8)) + theme(legend.position="none",legend.direction="horizontal")
+       title = paste("Figure 6. Phase space of prey and predator densities"))  +
+   theme(plot.title = element_text(size=7)) + theme(legend.position="none",legend.direction="horizontal")
 
 grid.arrange(p1, p2, ncol=2)
 params3 <- data.frame(parameter = c("a", "b", "k", "l", "K","tau","X0", "Y0"), values =
                         c(0.1,0.02,0.4,0.02,100,0.3,10,10))
-kable(params3)
+
 ```
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+kable(params3, caption = "Parameter values for the LV model with prey limit and predatory efficiency")
+```
+
 
 ## Discussion
 
@@ -317,8 +328,8 @@ p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
 
   labs(x = "Time",
        y = "Species density",
-       title = "Time evolution of the prey and predator densities") +
-   theme(plot.title = element_text(size=8)) 
+       title = "Figure 7. Time evolution of the prey and predator densities in the two-prey, one predator model") +
+   theme(plot.title = element_text(size=7)) 
 
 p1
 
@@ -331,8 +342,12 @@ p2<-ggplot(out, aes(x=x, y=y))+
 params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), values =
                         c(0.1,0.15,0.02,0.02,100,100,0.3,
                           0.3,0.4, 0.02, 0.02, 30,10,10))
-kable(params4)
+
 ```
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+kable(params4, caption = "Parameter values for the two-prey, one predator model")
+```
+
 
 ## Discussion
 
