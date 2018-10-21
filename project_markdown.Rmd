@@ -1,7 +1,7 @@
 ---
-title: "Coupled predator-prey models and its application in investing in stock market"
+title: "Coupled predator-prey models and its application in investing in the stock market"
 author: "Aurél György Prósz, XGRP0J"
-date: '2018 október 9 '
+date: October 22, 2018 
 output: 
   pdf_document:
     toc: true  
@@ -11,6 +11,7 @@ bibliography: bibliography.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+\newpage
 # Introduction
 
 Predator-prey models are important topics not only in biology, but in other fields like plasma physics[@0741-3335-56-1-015002], economics[@APEDAILLE19941], or even in criminology [@Sooknanan2016AMP].  
@@ -19,23 +20,26 @@ In this document I present the classical Lotka-Volterra (LV) equations and its m
 
 # Project goals
 
-Implement and interpret the:  
+In this project I first implement, evaluate and interpret the simplest of the predator-prey models, and using the results I build more complex models, which can be applied in a financial setting. The following models are going to be investigated:  
 
 * Classical LV model
 * Classical LV model at equilibrium
-* LV model with prey hill function and LV model with predator efficiency
+* LV model with prey limit and predation efficiency
 * LV model with one predator - two preys without interaction between the preys
-* LV model used in stock market
+* LV model with one predator - two preys, in a financial setting
 
 ## My own contribution to the topic
 
-The first three models are discussed in the [willeybook] already, but was implemented in Python. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
-The one predator - two-prey model was discussed in [@ELETTREBY20092018] and [@comp], but with an interaction term, either synergestic or competitive, included between the preys, so I found it interesting if I can analyze the results without the interactions.
+The first three models are discussed in the [@willeybook] already, but was implemented in Python. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
+The one predator - two-prey model was discussed in [@ELETTREBY20092018] and [@comp], but with an interaction term, either synergestic or competitive, included between the preys, so I found it interesting if I can analyze the results without the interactions.  
+Last but not least, I recreated the financial model presented in [@stock], and evaluated it at a certain parameter set, which gives a stable, and an unstable result.
 
 # Materials and methods
 ## R programming language
 R is a language and environment for statistical computing and graphics. It is a GNU project which is similar to the S language and environment which was developed at Bell Laboratories (formerly AT&T, now Lucent Technologies) by John Chambers and colleagues. R provides a wide variety of statistical (linear and nonlinear modelling, classical statistical tests, time-series analysis, classification, clustering, …) and graphical techniques, and is highly extensible. 
 
+## ggplot2 library
+**ggplot2** is an R library for creating graphics, based on the The Grammar of Graphics. It has been created by Hadley Wickham and is part of the tidyverse revolution. [@ggplot]
 
 ## DeSolve library
 
@@ -44,6 +48,8 @@ The particular function I used for the solutions is the *lsoda* function [@link]
 
 ## Possible source of errors
 
+When integrating differential equations one must always take the step-error into account. Derivatives require small differences which are prone to subtractive cancelations and round-off error accumulation. When I solve the simplest LV model, one can observe that the limit cycles do not form closed curves, which is due to the errors mentioned before.  
+Also I tried to set the time intervals big enough to see meaningfull information on the plots and I used an appropriate resolution on these intervals to avoid further errors.
 
 
 # Classical LV model
@@ -63,6 +69,8 @@ library(deSolve)
 library(ggplot2)
 library(reshape2)
 library(gridExtra)
+library(knitr)
+library(captioner)
 
 
 
@@ -107,14 +115,18 @@ out3$preystart <- 200
 
 out.final <- rbind(out1,out2,out3)
 out.final$preystart <- as.factor(out.final$preystart)
+out.m$variable <- as.character(out.m$variable)
+out.m$variable[out.m$variable == "x"] <- "Prey"
+out.m$variable[out.m$variable == "y"] <- "Predator"
+
 p1<-ggplot(out.m, aes(x=time, y=value, color=variable)) +
   geom_line(aes(color=variable), size = 1)+
   
   labs(x = "Time",
        y = "Species density",
        color = "Species",
-       title = "Time evolution of the prey and predator densities") +
-   theme(plot.title = element_text(size=8)) + theme(legend.position="bottom",legend.direction="horizontal")
+       title = "Figure 1. Time evolution of the prey and predator densities") +
+   theme(plot.title = element_text(size=6)) + theme(legend.position="bottom",legend.direction="horizontal")
 
 
 p2<-ggplot(out.final, aes(x=x, y=y, color = preystart))+
@@ -122,13 +134,43 @@ p2<-ggplot(out.final, aes(x=x, y=y, color = preystart))+
   labs(x = "Prey density",
        y = "Predator density",
        color = "Prey initial number",
-       title = "Phase space of prey and predator densities")  +
-   theme(plot.title = element_text(size=8)) + theme(legend.position="bottom",legend.direction="horizontal")
+       title = paste("Figure 2. Phase space of prey and predator densities,", '\n', "with different prey initial density values"))  +
+   theme(plot.title = element_text(size=6)) + theme(legend.position="bottom",legend.direction="horizontal")
 
+
+
+params1 <- data.frame(parameter = c("a", "b", "k", "l", "X0", "Y0"), value =
+                        c(0.1,0.2,0.02,0.4, 10,10))
+
+
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 grid.arrange(p1, p2, ncol=2)
 ```
 
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+kable(params1, caption = "Parameter values for the simplest LV model")
+```
+
+  
+One can show that there exists a non-trivial stable solution to this model by setting the followings:  
+
+$$
+\dot{x} = 0
+$$
+and
+$$
+\dot{y} = 0
+$$
+gives 
+$$
+x_{0} = \frac{l}{bk}, y_{0} = \frac{a}{b}
+$$
+which results in a stable equilibrium solution.
+Starting the simulation with these initial values gives us a non-trivial, stable state.
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 out.m <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
                       c(x = 20, y = 5), TRUE)
@@ -140,21 +182,33 @@ p3<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
   
   labs(x = "Time",
        y = "Species density",
-       title = "Time evolution of the prey and predator densities in the steady state")+ theme(legend.position="bottom",legend.direction="horizontal")+
-   theme(plot.title = element_text(size=8))
+       title = paste("Figure 3. Time evolution of the prey,",'\t', "and predator densities in the steady state"))+ theme(legend.position="bottom",legend.direction="horizontal")+
+   theme(plot.title = element_text(size=6))
 
 p4<-ggplot(out, aes(x=x, y=y))+
   geom_point()+ 
   labs(x = "Prey density",
        y = "Predator density",
-       title = "Phase space of prey and predator densities in the steady state") + theme(legend.position="bottom",legend.direction="horizontal")+
-   theme(plot.title = element_text(size=8))
+       title = "Figure 4. Phase space of prey and predator densities in the steady state") + theme(legend.position="bottom",legend.direction="horizontal")+
+   theme(plot.title = element_text(size=6))
 
 
+#grid.arrange(p3, p4, ncol=2)
+
+params2 <- data.frame(parameter = c("a", "b", "k", "l", "X0", "Y0"), values =
+                        c(0.1,0.02,0.02, 0.4,20,5))
+#kable(params2)
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
 grid.arrange(p3, p4, ncol=2)
 ```
 
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+kable(params2, caption = "Parameter values for the simplest LV model in equilibrium")
+```
 
 ## Discussion  
 
@@ -188,27 +242,35 @@ out.m <- model_system(LotVmod_version2, c(alpha = 0.1, beta = 0.02, gamma = 0.4,
 out <- model_system(LotVmod_version2, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02, K = 100, tau = 0.3), 
                       c(x = 10, y = 10), FALSE)
 
-p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable))+
-  geom_point(aes(color=variable)) + 
+out.m$variable <- as.character(out.m$variable)
+out.m$variable[out.m$variable == "x"] <- "Prey"
+out.m$variable[out.m$variable == "y"] <- "Predator"
+
+p1<-ggplot(out.m, aes(x=time, y=value, color=variable)) +
+  geom_line(aes(color=variable), size = 1)+
+  
   labs(x = "Time",
        y = "Species density",
-       title = "Time evolution of the prey and predator densities")
+       color = "Species",
+       title = "Time evolution of the prey and predator densities") +
+   theme(plot.title = element_text(size=8)) + theme(legend.position="bottom",legend.direction="horizontal")
 
-p1
 
 p2<-ggplot(out, aes(x=x, y=y))+
-  geom_point(aes(color="red"))+ 
+  geom_point(aes(color='red'), size = 0.05)+ 
   labs(x = "Prey density",
        y = "Predator density",
-       title = "Phase space of prey and predator densities")
-p2
+       color = "Prey initial number",
+       title = "Phase space of prey and predator densities")  +
+   theme(plot.title = element_text(size=8)) + theme(legend.position="none",legend.direction="horizontal")
+
+grid.arrange(p1, p2, ncol=2)
+params3 <- data.frame(parameter = c("a", "b", "k", "l", "K","tau","X0", "Y0"), values =
+                        c(0.1,0.02,0.4,0.02,100,0.3,10,10))
+kable(params3)
 ```
 
-
- Equation
-Source of errors
-Pictures
+## Discussion
 
 # Two preys, one predator LV model
 
@@ -245,12 +307,18 @@ out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4
 out <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
                       c(x1 = 30,x2 = 10 ,y = 10), FALSE)
 
+out.m$variable <- as.character(out.m$variable)
+out.m$variable[out.m$variable == "x1"] <- "Prey1"
+out.m$variable[out.m$variable == "x2"] <- "Prey2"
+out.m$variable[out.m$variable == "y"] <- "Predator"
+
 p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable))+
-  geom_point(aes(color=variable)) + 
+  geom_line(aes(color=variable), size = 1)+
+
   labs(x = "Time",
        y = "Species density",
-       title = "Time evolution of the prey and predator densities")
+       title = "Time evolution of the prey and predator densities") +
+   theme(plot.title = element_text(size=8)) 
 
 p1
 
@@ -260,8 +328,13 @@ p2<-ggplot(out, aes(x=x, y=y))+
        y = "Predator density",
        title = "Phase space of prey and predator densities")
 #p2
+params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), values =
+                        c(0.1,0.15,0.02,0.02,100,100,0.3,
+                          0.3,0.4, 0.02, 0.02, 30,10,10))
+kable(params4)
 ```
 
+## Discussion
 
 # Stock market application
 
@@ -310,8 +383,8 @@ $$
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 LotVmod_stock <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
-        r1 = 1/((1+(a2*x2+b2*y)^n)/x1)
-        r2 = 1/((1+(a1*x1+b1*y)^n)/x2)
+        r1 = 1/((1+(a2*x2+b2*y)/x1)^n)
+        r2 = 1/((1+(a1*x1+b1*y)/x2)^n)
         dx1 = x1*alpha1*(1-x1/K1) - m12*x1*x2 - (beta1*y*x1)*r1
         dx2 = x2*alpha2*(1-x2/K2) - m21*x1*x2 -(beta2*y*x2)*r2
         dy = -mu*y + c1*beta1*x1*y*r1 + c2*beta2*x2*y*r2
@@ -322,34 +395,79 @@ LotVmod_stock <- function (Time, State, Pars) {
 
 Time <- seq(0, 20000, by = 100)
  
-out.m <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
+out.m.stable <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
                       K1 = 5, K2 = 10, m12 = 0.01, m21 = 0.02,beta1 = 0.03, beta2 = 0.03,
                       mu = 0.02, c1 = 0.1, c2 = 0.2, n = 1, a1 = 0.02, a2 =1.5, b1 = 0.01, b2=0.03),c(x1 = 0.5644,x2 = 3.3233 ,y =  0.7406), TRUE)
 
+out.m.unstable <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
+                      K1 = 5, K2 = 10, m12 = 0.01, m21 = 0.02,beta1 = 0.03, beta2 = 0.03,
+                      mu = 0.02, c1 = 0.1, c2 = 0.2, n = 1, a1 = 0.02, a2 =3.5, b1 = 0.01, b2=0.03),c(x1 = 0.5644,x2 = 3.3233 ,y =  0.7406), TRUE)
 
-out <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
+
+out.stable <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
                       K1 = 5, K2 = 10, m12 = 0.01, m21 = 0.02,beta1 = 0.03, beta2 = 0.03,
                       mu = 0.02, c1 = 0.1, c2 = 0.2, n = 1, a1 = 0.02, a2 =1.5, b1 = 0.01, b2=0.03),c(x1 = 0.5644,x2 = 3.3233 ,y =  0.7406), FALSE)
 
-p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable))+
-  geom_point(aes(color=variable)) + 
+out.m.stable$variable <- as.character(out.m.stable$variable)
+out.m.stable$variable[out.m.stable$variable == "x1"] <- "Prey1"
+out.m.stable$variable[out.m.stable$variable == "x2"] <- "Prey2"
+out.m.stable$variable[out.m.stable$variable == "y"] <- "Predator"
+
+out.m.unstable$variable <- as.character(out.m.unstable$variable)
+out.m.unstable$variable[out.m.unstable$variable == "x1"] <- "Prey1"
+out.m.unstable$variable[out.m.unstable$variable == "x2"] <- "Prey2"
+out.m.unstable$variable[out.m.unstable$variable == "y"] <- "Predator"
+
+p1<-ggplot(out.m.stable, aes(x=time, y=value, group=variable)) +
+  geom_line(aes(color=variable), size = 1)+
   labs(x = "Time",
        y = "Species density",
-       title = "Time evolution of the prey and predator densities")
+       title = "Time evolution of the prey and predator densities") +
+   theme(plot.title = element_text(size=8)) 
 
-p1
-
-p2<-ggplot(out, aes(x=x, y=y))+
-  geom_point(aes(color="red"))+ 
-  labs(x = "Prey density",
-       y = "Predator density",
-       title = "Phase space of prey and predator densities")
-#p2
+p2<-ggplot(out.m.unstable, aes(x=time, y=value, group=variable)) +
+  geom_line(aes(color=variable), size = 1)+
+  labs(x = "Time",
+       y = "Species density",
+       title = "Time evolution of the prey and predator densities") +
+   theme(plot.title = element_text(size=8)) 
 
 
+params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2","alpha1","alpha2","beta1","beta2", "K1","K2","m12","m21","mu","n","c1","c2","X1_0","X2_0","Y0"), values =
+                        c(0.02,1.5, 0.01,0.03,0.04, 0.05, 0.03,                         0.03,5,10,0.01,0.02,0.02,1,0.1,0.2,0.5644,3.3233,0.7406))
+grid.arrange(p1, p2, nrow=2)
+
+kable(params4)
 ```
 
+## Discussion
 
+The predatory
+functions are functions of the ai and bi parameters for i = 1, 2. These represent
+the harvesting rate of prey and anti-predator behavior of prey respectively.
+In the financial world, these are taken to be the equity risk premium (excess
+returns based on investment in the stock market) and price volatility index (a
+measure of risk in terms of ‘investor fear’ in the stock market) respectively from
+the two prey stocks.
+The parameters ci
+, i = 1, 2 which biologically represent the conversion rates
+of prey i to predator are represented financially as the price to earnings ratio of
+the prey stock i
+
+Therefore,
+a predator company who wishes to invest in either of these companies can be
+advised that if the stock parameters of those companies are kept within the
+stability intervals, their investment would be stable and profitable. Otherwise,
+parameters outside of these intervals would cause the model to become unstable
+and therefore it would not be wise to invest.
+
+
+# Summary
+
+What I did
+
+The stock market also has equilibrium, so it behaves like an ecosystem and
+understanding the ramifications of these mechanisms can provide the investor
+with insights that yield competitive advantages [4].
 
 # References
