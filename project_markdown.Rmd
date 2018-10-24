@@ -1,5 +1,5 @@
 ---
-title: "Coupled predator-prey models and its application in investing in the stock market"
+title: "Coupled predator-prey models and their application in investing in the stock market"
 author: "Aurél György Prósz, XGRP0J"
 date: October 22, 2018 
 output: 
@@ -328,9 +328,9 @@ out.m$variable <- as.character(out.m$variable)
 out.m$variable[out.m$variable == "x1"] <- "Prey1"
 out.m$variable[out.m$variable == "x2"] <- "Prey2"
 out.m$variable[out.m$variable == "y"] <- "Predator"
-
-p1<-ggplot(out.m, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable), size = 1)+
+names(out.m) <- c("Species", "value", "time")
+p1<-ggplot(out.m, aes(x=time, y=value, group=Species)) +
+  geom_line(aes(color=Species), size = 1)+
 
   labs(x = "Time",
        y = "Species density",
@@ -386,16 +386,16 @@ $$
 r2 = \frac{1}{1+\left ( \frac{a_{1}X_{1}+b_{1}Y}{X_{2}} \right )^{n}}
 $$
 
-* *X1* and *X2* are relative share prices of competing prey companies, *Y* is the relative price per share of the predator company. The parameters used in the model are all non-negative.  
-* *alpha1* and *alpha2*: Intrinsic growth rate of prey share price,  
-* *K1* and *K2*: Carrying capacity of prey shares,  
-* *m12* and *m21*: Inter-specific competition between prey market shares,  
-* *beta1* and *beta2*: Predatory capture rate  is the probability predator Y invests in prey X1 or X2,  
-* *a1* and *a2*: Harvesting rate of prey shares,  
-* *b1* and *b2*: Anti-predator behavior of prey shares,  
-* *c1* and *c2*: Rate of conversion of prey shares to predator shares,  
-* *mu*: Rate of decline of predator share price,  
-* *n* : Multiplicative effect due to the predatory functional response.  
+* $X_{1}$ and $X_{2}$ are relative share prices of competing prey companies, $Y$ is the relative price per share of the predator company. The parameters used in the model are all non-negative.  
+*  $\alpha_{1}$ and $\alpha_{2}$: Intrinsic growth rate of prey share price,  
+*  $K_{1}$ and $K_{2}$: Carrying capacity of prey shares,  
+*  $m_{12}$ and $m_{21}$: Inter-specific competition between prey market shares,  
+*  $beta_{1}$ and $beta_{2}$: Predatory capture rate  is the probability predator $Y$ invests in prey $X_{1}$ or $X_{2}$,  
+* $a_{1}$ and $a_{2}$: Harvesting rate of prey shares,  
+* $b_{1}$ and $b_{2}$: Anti-predator behavior of prey shares,  
+* $c_{1}$ and $c_{2}$: Rate of conversion of prey shares to predator shares,  
+* $\mu$: Rate of decline of predator share price,  
+* $n$ : Multiplicative effect due to the predatory functional response.  
 
 
 
