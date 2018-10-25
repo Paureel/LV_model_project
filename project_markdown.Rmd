@@ -69,7 +69,8 @@ $$
 $$
 \frac{dY}{dt}= bkXY-lY
 $$
-where *x* and *y* are the prey and predator density, respectively, *a* and *l* determines how fast the preys reproduce and the predators die of hunger. *b* and *k* describes the interaction part of the equation, where *b* governs the interaction rate between the two species, and *k* is set the efficiency of which the predators converts prey to food.
+where *x* and *y* are the prey and predator density, respectively, *a* and *l* determines how fast the preys reproduce and the predators die of hunger. *b* and *k* describes the interaction part of the equation, where *b* governs the interaction rate between the two species, and *k* is set the efficiency of which the predators converts prey to food.  
+The parameters which were used in the simulations were summarised in *Table 1*. 
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -225,19 +226,20 @@ kable(params2, caption = "Parameter values for the simplest LV model in equilibr
 
 ## Discussion  
 
-On plot1 one can see that the solution of this model is an oscillatory behavior, where the prey and predator density rise and fall out of phase respect to each other.Plotting the x,y phase space on plot2 shows closed orbits, called limit cycles. However, the orbits are not perfectly closed due to the errors in the numerical integration of the equations.
+On *Figure 1* one can see that the solution of this model is an oscillatory behavior, where the prey and predator density rise and fall out of phase respect to each other.Plotting the x,y phase space on *Figure 2* shows closed orbits, called limit cycles. However, the orbits are not perfectly closed due to the errors in the numerical integration of the equations.
 
 
 # LV model with prey limit and predator efficiency
 
-This model extends the classical LV model in such a way, that it includes a so called K carrying capacity for the prey population, and a functional response palpha, as the probability a predator finds one prey. These two parameters makes the model more realistic, as in reality the resources available for the preys are not unlimited, and the hunt by the predators are not always successful, and takes time. 
+This model extends the classical LV model in such a way, that it includes a so called $K$ carrying capacity for the prey population, and a functional response palpha, as the probability a predator finds one prey. These two parameters makes the model more realistic, as in reality the resources available for the preys are not unlimited, and the hunt by the predators are not always successful, and takes time. 
+The equations describing this system is the following:
 $$
 \frac{dX}{dt} = Xa(1-\frac{X}{K}) - \frac{bYX}{1+bX\tau}
 $$
 $$
 \frac{dY}{dt}= bkXY-lY
 $$
-
+where $K$ is the carrying capacity of the prey population, and $\tau$ is the time the predator spends handling the prey. The initial parameters are summarised in *Table 3*.  
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 LotVmod_version2 <- function (Time, State, Pars) {
     with(as.list(c(State, Pars)), {
@@ -288,6 +290,9 @@ kable(params3, caption = "Parameter values for the LV model with prey limit and 
 
 
 ## Discussion
+
+As we can see in *Figure 5* the two species density oscillates with these initial parameters, but they dampen down after some time and converges to an equilibrium. Depending on $b$, the result could be also an overdamped, oscillation-free function, or a limit cycle. We should note that, that the equations can be extended with predator limit aswell. 
+
 
 # Two preys, one predator LV model
 
