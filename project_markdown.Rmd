@@ -80,6 +80,8 @@ library(reshape2)
 library(gridExtra)
 library(knitr)
 library(captioner)
+library(kableExtra)
+
 
 
 
@@ -162,6 +164,7 @@ grid.arrange(p1, p2, ncol=2)
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
 kable(params1, caption = "Parameter values for the simplest LV model")
+
 ```
 
   
@@ -301,13 +304,16 @@ This modification of the original LV model includes the extensions mentioned abo
 $$
 \frac{dX_{1}}{dt} = Xa_{1}(1-\frac{X_{1}}{K_{1}}) - \frac{b_{1}YX_{1}}{1+b_{1}X_{1}\tau_{1}}
 $$
+
 $$
 \frac{dX_{2}}{dt} = Xa_{2}(1-\frac{X_{2}}{K_{2}}) - \frac{b_{2}YX_{2}}{1+b_{2}X_{2}\tau_{2}}
 $$
 
 $$
-\frac{dY}{dt}= \delta X_{1}Y + \delta X_{2}Y-lY
+\frac{dY}{dt}= \delta_{1} X_{1}Y + \delta_{2} X_{2}Y-lY
 $$
+where the meaning of the parameters are the same as discusses before, but indexed as for the *i-th* prey. The $\delta_{i}$ parameters define the gain from that the predator chooses to eat prey *i*.  
+In this first I run a simulation where the parameters for the two prey are the same. After this I was curious what happens if I set the predatory conversion rate and the predatory gain for prey 2 to a big higher value (see table ...). Biologically it would mean the predator catch that particular prey more easily and gain more from them, and also decrease the their population faster. I expect that the second prey population will decrease and converge to a value near zero, while the first prey population remains unchanged or a bit decreased compared to the unmodified system.
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -324,7 +330,9 @@ LotVmod_twoprey <- function (Time, State, Pars) {
 
 Time <- seq(0, 500, by = 0.1)
  
-out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.025, K2 = 100, tau2 = 0.3, delta2 = 0.04, sigma1 = 0.01, sigma2 = 0.01), 
+                      c(x1 = 30,x2 = 30 ,y = 10), TRUE)
+out.m2 <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
                       c(x1 = 30,x2 = 10 ,y = 10), TRUE)
 out <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
                       c(x1 = 30,x2 = 10 ,y = 10), FALSE)
@@ -334,6 +342,13 @@ out.m$variable[out.m$variable == "x1"] <- "Prey1"
 out.m$variable[out.m$variable == "x2"] <- "Prey2"
 out.m$variable[out.m$variable == "y"] <- "Predator"
 names(out.m) <- c("Species", "value", "time")
+
+out.m2$variable <- as.character(out.m2$variable)
+out.m2$variable[out.m2$variable == "x1"] <- "Prey1"
+out.m2$variable[out.m2$variable == "x2"] <- "Prey2"
+out.m2$variable[out.m2$variable == "y"] <- "Predator"
+names(out.m2) <- c("Species", "value", "time")
+
 p1<-ggplot(out.m, aes(x=time, y=value, group=Species)) +
   geom_line(aes(color=Species), size = 1)+
 
@@ -344,6 +359,16 @@ p1<-ggplot(out.m, aes(x=time, y=value, group=Species)) +
 
 p1
 
+p0<-ggplot(out.m2, aes(x=time, y=value, group=Species)) +
+  geom_line(aes(color=Species), size = 1)+
+
+  labs(x = "Time",
+       y = "Species density",
+       title = "Figure 8. Time evolution of the prey and predator densities in the two-prey, one predator model") +
+   theme(plot.title = element_text(size=7)) 
+
+p0
+
 p2<-ggplot(out, aes(x=x, y=y))+
   geom_point(aes(color="red"))+ 
   labs(x = "Prey density",
@@ -351,12 +376,15 @@ p2<-ggplot(out, aes(x=x, y=y))+
        title = "Phase space of prey and predator densities")
 #p2
 params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), values =
+                        c(0.1,0.15,0.02,0.025,100,100,0.3,
+                          0.3,0.4, 0.02, 0.04, 30,10,10))
+params5 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), values =
                         c(0.1,0.15,0.02,0.02,100,100,0.3,
                           0.3,0.4, 0.02, 0.02, 30,10,10))
-
 ```
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 kable(params4, caption = "Parameter values for the two-prey, one predator model")
+kable(params5, caption = "Parameter values for the two-prey, one predator model")
 ```
 
 
@@ -429,6 +457,10 @@ out.m.unstable <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
                       K1 = 5, K2 = 10, m12 = 0.01, m21 = 0.02,beta1 = 0.03, beta2 = 0.03,
                       mu = 0.02, c1 = 0.1, c2 = 0.2, n = 1, a1 = 0.02, a2 =3.5, b1 = 0.01, b2=0.03),c(x1 = 0.5644,x2 = 3.3233 ,y =  0.7406), TRUE)
 
+out.m.stable_mod <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
+                      K1 = 5, K2 = 10, m12 = 0.01, m21 = 0.02,beta1 = 0.03, beta2 = 0.04,
+                      mu = 0.02, c1 = 0.1, c2 = 0.2, n = 1, a1 = 0.02, a2 =1.5, b1 = 0.01, b2=0.03),c(x1 = 0.5644,x2 = 3.3233 ,y =  0.7406), TRUE)
+
 
 out.stable <- model_system(LotVmod_stock, c(alpha1 = 0.04, alpha2 = 0.05,
                       K1 = 5, K2 = 10, m12 = 0.01, m21 = 0.02,beta1 = 0.03, beta2 = 0.03,
@@ -444,24 +476,36 @@ out.m.unstable$variable[out.m.unstable$variable == "x1"] <- "Prey1"
 out.m.unstable$variable[out.m.unstable$variable == "x2"] <- "Prey2"
 out.m.unstable$variable[out.m.unstable$variable == "y"] <- "Predator"
 
+out.m.stable_mod$variable <- as.character(out.m.stable_mod$variable)
+out.m.stable_mod$variable[out.m.stable_mod$variable == "x1"] <- "Prey1"
+out.m.stable_mod$variable[out.m.stable_mod$variable == "x2"] <- "Prey2"
+out.m.stable_mod$variable[out.m.stable_mod$variable == "y"] <- "Predator"
+
 p1<-ggplot(out.m.stable, aes(x=time, y=value, group=variable)) +
   geom_line(aes(color=variable), size = 1)+
   labs(x = "Time",
        y = "Relative price per share",
-       title = paste("Figure 8. Time evolution of the relative share price of the ",'\n',"prey and predator companies in equilibrium")) +
+       title = paste("Figure 9. Time evolution of the relative share price of the ",'\n',"prey and predator companies in equilibrium")) +
    theme(plot.title = element_text(size=8)) 
 
 p2<-ggplot(out.m.unstable, aes(x=time, y=value, group=variable)) +
   geom_line(aes(color=variable), size = 1)+
   labs(x = "Time",
        y = "Relative price per share",
-       title = paste("Figure 9. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state")) +
+       title = paste("Figure 10. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state")) +
    theme(plot.title = element_text(size=8)) 
 
+p3<-ggplot(out.m.stable_mod, aes(x=time, y=value, group=variable)) +
+  geom_line(aes(color=variable), size = 1)+
+  labs(x = "Time",
+       y = "Relative price per share",
+       title = paste("Figure 10. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state")) +
+   theme(plot.title = element_text(size=8)) 
 
 params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2","alpha1","alpha2","beta1","beta2", "K1","K2","m12","m21","mu","n","c1","c2","X1_0","X2_0","Y0"), values =
                         c(0.02,1.5, 0.01,0.03,0.04, 0.05, 0.03,                         0.03,5,10,0.01,0.02,0.02,1,0.1,0.2,0.5644,3.3233,0.7406))
 grid.arrange(p1, p2, nrow=2)
+p3
 
 kable(params4)
 ```
