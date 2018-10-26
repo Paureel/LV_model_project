@@ -1,7 +1,7 @@
 ---
-title: "Coupled predator-prey models and their application in investing in the stock market"
-author: "Aurél György Prósz, XGRP0J"
-date: October 22, 2018 
+title: ""
+author: ""
+date:
 output: 
   pdf_document:
     toc: true  
@@ -515,7 +515,7 @@ p3<-ggplot(out.m.stable_mod, aes(x=time, y=value, group=Species)) +
   geom_line(aes(color=Species), size = 1)+
   labs(x = "Time",
        y = "Relative price per share",
-       title = paste("Figure 10. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state, with modification")) +
+       title = paste("Figure 11. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state, with modification")) +
    theme(plot.title = element_text(size=8)) 
 
 params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2","alpha1","alpha2","beta1","beta2", "K1","K2","m12","m21","mu","n","c1","c2","X1_0","X2_0","Y0"), value =
