@@ -5,6 +5,7 @@ date: October 22, 2018
 output: 
   pdf_document:
     toc: true  
+  
 bibliography: bibliography.bib
 ---
 
@@ -23,7 +24,7 @@ When I chose this topic, I have found fascinating how mechanisms which seemingly
 Predator-prey models are important topics not only in biology, but in other fields like plasma physics[@0741-3335-56-1-015002], economics[@APEDAILLE19941], or even in criminology [@Sooknanan2016AMP].  
 The first, simplest model originated from the study of fish populations of the Mediterranean after the first world war, by Lotka and Volterra. In their model there are two types of species: the prey, and the predator. They form a simple food-chain where the predator species hunts the prey species, while the prey grazes vegetation. Their behavior and the time evolution of the number of species are characterized by a simple system of two, nonlinear first order differential equations. By solving these equations, we can have insights on how the number of predators and preys evolve in time.  
 In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [@stock], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so-called prey companies, and sell them to a predator company. The stock market also has equilibrium, so it behaves like an ecosystem and understanding the ramifications of these mechanisms can provide the investor
-with insights that yield competitive advantages [4].
+with insights that yield competitive advantages.
 
 # Project goals
 
@@ -37,7 +38,7 @@ In this project I first implement, evaluate and interpret the simplest of the pr
 
 ## My own contribution to the topic
 
-The first three models are discussed in the [@willeybook] book already, but was implemented in Python and I used a sligthly modified version of the equations which was presented there. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
+The first three models are discussed in the primary book which the course is based on already ([@willeybook]), but was implemented in Python and I used a sligthly modified version of the equations which was presented there. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
 The one predator - two-prey model was discussed in [@ELETTREBY20092018] and [@comp], but with an interaction term, either synergistic or competitive, included between the preys, so I found it interesting if I can analyze the results without the interactions.  
 Finally, I recreated the financial model presented in [@stock], and evaluated it at a certain parameter set, which gives a stable, and an unstable result.
 
@@ -72,7 +73,7 @@ $$
 $$
 \frac{dY}{dt}= bkXY-lY
 $$
-where *x* and *y* are the prey and predator density, respectively, *a* and *l* determines how fast the preys reproduce and the predators die of hunger. *b* and *k* describes the interaction part of the equation, where *b* governs the interaction rate between the two species, and *k* is set the efficiency of which the predators convert prey to food.  
+where *X* and *Y* are the prey and predator density, respectively, *a* and *l* determines how fast the preys reproduce and the predators die of hunger. *b* and *k* describes the interaction part of the equation, where *b* governs the interaction rate between the two species, and *k* is set the efficiency of which the predators convert prey to food.  
 The parameters which were used in the simulations were summarized in *Table 1*. 
 
 
@@ -147,7 +148,7 @@ p2<-ggplot(out.final, aes(x=x, y=y, color = preystart))+
   geom_point(aes(color=preystart), size = 0.05)+ 
   labs(x = "Prey density",
        y = "Predator density",
-       color = "Prey initial number",
+       color = "Prey initial density",
        title = paste("Figure 2. Phase space of prey and predator densities,", '\n', "with different prey initial density values"))  +
    theme(plot.title = element_text(size=6)) + theme(legend.position="bottom",legend.direction="horizontal")
 
@@ -239,7 +240,7 @@ In *Figure 3* and *Figure 4* we can see the solution for the equilibrium state, 
 
 # LV model with prey limit and predator efficiency
 
-This model extends the classical LV model in such a way, that it includes a so called $K$ carrying capacity for the prey population, and a functional response palpha, as the probability a predator finds one prey. These two parameters make the model more realistic, as in reality the resources available for the preys are not unlimited, and the hunt by the predators are not always successful, and takes time. 
+This model extends the classical LV model in such a way, that it includes a so called $K$ carrying capacity for the prey population, and $\tau$ as the time a predator spends handling a single prey. These two parameters make the model more realistic, as in reality the resources available for the preys are not unlimited, and the hunt by the predators are not always successful, and takes time. 
 The equations describing this system is the following:
 $$
 \frac{dX}{dt} = Xa(1-\frac{X}{K}) - \frac{bYX}{1+bX\tau}
@@ -318,7 +319,7 @@ $$
 \frac{dY}{dt}= \delta_{1} X_{1}Y + \delta_{2} X_{2}Y-lY
 $$
 where the meaning of the parameters is the same as discusses before, but indexed as for the *i-th* prey. The $\delta_{i}$ parameters define the gain from that the predator chooses to eat prey *i*.  
-First, I ran a simulation where the parameters for the two prey are the same, except the second prey reproduce a little faster than the first, and I observed the results (*Figure 7*). After this I was curious what happens if I set the predatory conversion rate and the predatory gain for prey 1 to a bit higher value (see *Table 5*). Biologically it would mean the predator catch that particular prey more easily and gain more from them, and also decrease the their population faster. I expect that the first prey population will decrease and converge **faster** to a value near zero, while the second prey population remains unchanged or a bit decreased compared to the unmodified system.
+First, I ran a simulation where the parameters for the two prey are the same, except the second prey reproduce a little faster than the first, and I observed the results (*Figure 7*). After this I was curious what happens if I set the predatory conversion rate and the predatory gain for prey 1 to a bit higher value (see *Table 5*). Biologically it would mean the predator catch that particular prey more easily and gain more from them, and also decrease their population faster. I expect that the first prey population will decrease and converge **faster** to a value near zero, while the second prey population remains unchanged or a bit decreased compared to the unmodified system.
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -406,7 +407,7 @@ The main objective is to simulate the system described above, and to make profit
 In order for this to be profitable financially, the predator needs to have an
 estimate of the risk involved in this trade and this is based on changes in his
 predatory share prices.  
-Analyzing the simulation results can allow the trader to find the specific parameters which makes the system stable, and this would allow determine if the acquisition  of prey company shares is profitable, or not.  
+Analyzing the simulation results can allow the trader to find the specific parameters which makes the system stable, and this would allow determine if the acquisition  of prey company shares is profitable, or not.[@stock]    
 \newpage
 The equations describing the problem are a modified one predator - two prey model, with a competitive interaction term between the preys, which simulates the competition on the free market between the firms. The equations can be seen below. Note that I used a slightly different notations for the parameters from the previous models to be more aligned with the original article.
 
@@ -430,7 +431,7 @@ $$
 r2 = \frac{1}{1+\left ( \frac{a_{1}X_{1}+b_{1}Y}{X_{2}} \right )^{n}}
 $$
 
-* $X_{1}$ and $X_{2}$ are relative share prices of competing prey companies, $Y$ is the relative price per share of the predator company. The parameters used in the model are all non-negative.  
+* $X_{1}$ and $X_{2}$ are relative share prices of competing prey companies, $Y$ is the relative price per share of the predator company.
 *  $\alpha_{1}$ and $\alpha_{2}$: Intrinsic growth rate of prey share price,  
 *  $K_{1}$ and $K_{2}$: Carrying capacity of prey shares,  
 *  $m_{12}$ and $m_{21}$: Inter-specific competition between prey market shares,  
@@ -526,7 +527,7 @@ p3
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-kable(params4, caption = "Parameter values for predator-prey model in a financial setting. The parameters of the three simulation are separarted by a |, where changed")
+kable(params4, caption = "Parameter values for predator-prey model in a financial setting. The parameters of the three simulation are separarted by a |, where changed.")
 ```
 
 ## Discussion
@@ -539,7 +540,7 @@ The *a1*, *a2*, *b1*, *b2* parameters represents the predatory functions, and in
 These represent the harvesting rate of prey and anti-predator behavior of prey respectively. In the financial world, these are taken to be the equity risk premium (excess returns based on investment in the stock market) and price volatility index (a measure of risk in terms of ‘investor fear’ in the stock market) respectively from the two prey stocks.
 The parameters *c1* and *c2*, which naturally represents in biology the conversion rates of the i-th prey to predator are represented financially as the price to earnings ratio of the prey stock respectively.
 
-Therefore, a predator company who wishes to invest in either of these companies can be advised that if the stock parameters of those companies are kept within the stability intervals, their investment would be stable and profitable. Otherwise, parameters outside of these intervals would cause the model to become unstable and therefore it would not be wise to invest.
+Therefore, a predator company who wishes to invest in either of these companies can be advised that if the stock parameters of those companies are kept within the stability intervals, their investment would be stable and profitable. Otherwise, parameters outside of these intervals would cause the model to become unstable and therefore it would not be wise to invest. [@stock]
 
 
 # Summary
