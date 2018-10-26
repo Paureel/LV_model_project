@@ -22,7 +22,8 @@ When I choosed this topic I have found fascinating how mechanisms which seemingl
 
 Predator-prey models are important topics not only in biology, but in other fields like plasma physics[@0741-3335-56-1-015002], economics[@APEDAILLE19941], or even in criminology [@Sooknanan2016AMP].  
 The first, simplest model originated from the study of fish populations of the Mediterranean after the first world war, by Lotka and Volterra. In their model there are two types of species: the prey, and the predator. They form a simple food-chain where the predator species hunts the prey species, while the prey grazes vegetation. Their behavior and the time evolution of the number of species are characterized by a simple system of two, nonlinear first order differential equations. By solving these equations we can have insights on how the number of predators and preys evolve in time.  
-In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [@stock], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so called prey companies, and sell them to a predator company.
+In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [@stock], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so called prey companies, and sell them to a predator company. The stock market also has equilibrium, so it behaves like an ecosystem and understanding the ramifications of these mechanisms can provide the investor
+with insights that yield competitive advantages [4].
 
 # Project goals
 
@@ -36,16 +37,17 @@ In this project I first implement, evaluate and interpret the simplest of the pr
 
 ## My own contribution to the topic
 
-The first three models are discussed in the [@willeybook] already, but was implemented in Python. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
+The first three models are discussed in the [@willeybook] book already, but was implemented in Python and I used a sligthly modified version of the equations which was presented there. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
 The one predator - two-prey model was discussed in [@ELETTREBY20092018] and [@comp], but with an interaction term, either synergestic or competitive, included between the preys, so I found it interesting if I can analyze the results without the interactions.  
 Last but not least, I recreated the financial model presented in [@stock], and evaluated it at a certain parameter set, which gives a stable, and an unstable result.
 
 # Materials and methods
 ## R programming language
 R is a language and environment for statistical computing and graphics. It is a GNU project which is similar to the S language and environment which was developed at Bell Laboratories (formerly AT&T, now Lucent Technologies) by John Chambers and colleagues. R provides a wide variety of statistical (linear and nonlinear modelling, classical statistical tests, time-series analysis, classification, clustering, …) and graphical techniques, and is highly extensible. 
+I created this document using RStudio, and it was generated with the RMarkdown framework.
 
 ## ggplot2 library
-**ggplot2** is an R library for creating graphics, based on the The Grammar of Graphics. It has been created by Hadley Wickham and is part of the tidyverse revolution. [@ggplot]
+**ggplot2** is an R library for creating graphics, based on the The Grammar of Graphics. It has been created by Hadley Wickham and is part of the tidyverse project. [@ggplot]
 
 ## DeSolve library
 
@@ -59,6 +61,7 @@ The particular function I used for the solutions is the *lsoda* function
 When integrating differential equations one must always take the step-error into account. Derivatives require small differences which are prone to subtractive cancelations and round-off error accumulation. When I solve the simplest LV model, one can observe that the limit cycles do not form closed curves, which is due to the errors mentioned before.  
 Also I tried to set the time intervals big enough to see meaningfull information on the plots and I used an appropriate resolution on these intervals to avoid further errors.  
 
+\newpage
 
 # Classical LV model
 
@@ -156,10 +159,11 @@ params1 <- data.frame(parameter = c("a", "b", "k", "l", "X0", "Y0"), value =
 
 ```
 
+
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
 grid.arrange(p1, p2, ncol=2)
 ```
-
+\newpage
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -171,18 +175,18 @@ kable(params1, caption = "Parameter values for the simplest LV model")
 One can show that there exists a non-trivial stable solution to this model by setting the followings:  
 
 $$
-\dot{x} = 0
+\dot{X} = 0
 $$
 and
 $$
-\dot{y} = 0
+\dot{Y} = 0
 $$
 gives 
 $$
-x_{0} = \frac{l}{bk}, y_{0} = \frac{a}{b}
+X_{0} = \frac{l}{bk}, Y_{0} = \frac{a}{b}
 $$
 which results in a stable equilibrium solution.
-Starting the simulation with these initial values gives us a non-trivial, stable state.
+Starting the simulation with these initial values gives us a non-trivial, stable state (see *Table 2*).
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 out.m <- model_system(LotVmod_classical, c(alpha = 0.1, beta = 0.02, gamma = 0.4, delta = 0.02), 
                       c(x = 20, y = 5), TRUE)
@@ -212,7 +216,7 @@ p4<-ggplot(out, aes(x=x, y=y))+
 
 #grid.arrange(p3, p4, ncol=2)
 
-params2 <- data.frame(parameter = c("a", "b", "k", "l", "X0", "Y0"), values =
+params2 <- data.frame(parameter = c("a", "b", "k", "l", "X0", "Y0"), value =
                         c(0.1,0.02,0.02, 0.4,20,5))
 #kable(params2)
 ```
@@ -229,7 +233,8 @@ kable(params2, caption = "Parameter values for the simplest LV model in equilibr
 
 ## Discussion  
 
-On *Figure 1* one can see that the solution of this model is an oscillatory behavior, where the prey and predator density rise and fall out of phase respect to each other.Plotting the x,y phase space on *Figure 2* shows closed orbits, called limit cycles. However, the orbits are not perfectly closed due to the errors in the numerical integration of the equations.
+On *Figure 1* one can see that the solution of this model is an oscillatory behavior, where the prey and predator density rise and fall out of phase respect to each other. Plotting the $x$,$y$ phase space on *Figure 2* shows closed orbits, called limit cycles. However, the orbits are not perfectly closed due to the errors in the numerical integration of the equations (but cannot be seen in this resolution).  
+In *Figure 3* and *Figure 4* we can see the solution for the equilibrium state, which gives us a constant value both for the prey and predator densities, and the representation in the phase space is a single point as we expected.  
 
 
 # LV model with prey limit and predator efficiency
@@ -283,7 +288,7 @@ p2<-ggplot(out, aes(x=x, y=y))+
    theme(plot.title = element_text(size=7)) + theme(legend.position="none",legend.direction="horizontal")
 
 grid.arrange(p1, p2, ncol=2)
-params3 <- data.frame(parameter = c("a", "b", "k", "l", "K","tau","X0", "Y0"), values =
+params3 <- data.frame(parameter = c("a", "b", "k", "l", "K","tau","X0", "Y0"), value =
                         c(0.1,0.02,0.4,0.02,100,0.3,10,10))
 
 ```
@@ -313,7 +318,7 @@ $$
 \frac{dY}{dt}= \delta_{1} X_{1}Y + \delta_{2} X_{2}Y-lY
 $$
 where the meaning of the parameters are the same as discusses before, but indexed as for the *i-th* prey. The $\delta_{i}$ parameters define the gain from that the predator chooses to eat prey *i*.  
-In this first I run a simulation where the parameters for the two prey are the same. After this I was curious what happens if I set the predatory conversion rate and the predatory gain for prey 2 to a big higher value (see table ...). Biologically it would mean the predator catch that particular prey more easily and gain more from them, and also decrease the their population faster. I expect that the second prey population will decrease and converge to a value near zero, while the first prey population remains unchanged or a bit decreased compared to the unmodified system.
+First I ran a simulation where the parameters for the two prey are the same, except the second prey reproduce a little faster than the first, and I observed the results (*Figure 7*). After this I was curious what happens if I set the predatory conversion rate and the predatory gain for prey 1 to a bit higher value (see *Table 5*). Biologically it would mean the predator catch that particular prey more easily and gain more from them, and also decrease the their population faster. I expect that the first prey population will decrease and converge **faster** to a value near zero, while the second prey population remains unchanged or a bit decreased compared to the unmodified system.
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -330,10 +335,10 @@ LotVmod_twoprey <- function (Time, State, Pars) {
 
 Time <- seq(0, 500, by = 0.1)
  
-out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.025, K2 = 100, tau2 = 0.3, delta2 = 0.04, sigma1 = 0.01, sigma2 = 0.01), 
+out.m <- model_system(LotVmod_twoprey, c(alpha1 = 0.13, beta1 = 0.025, gamma = 0.4, delta1 = 0.04, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
                       c(x1 = 30,x2 = 30 ,y = 10), TRUE)
-out.m2 <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
-                      c(x1 = 30,x2 = 10 ,y = 10), TRUE)
+out.m2 <- model_system(LotVmod_twoprey, c(alpha1 = 0.13, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
+                      c(x1 = 30,x2 = 30 ,y = 10), TRUE)
 out <- model_system(LotVmod_twoprey, c(alpha1 = 0.1, beta1 = 0.02, gamma = 0.4, delta1 = 0.02, K1 = 100, tau1 = 0.3,alpha2 = 0.15, beta2 = 0.02, K2 = 100, tau2 = 0.3, delta2 = 0.02, sigma1 = 0.01, sigma2 = 0.01), 
                       c(x1 = 30,x2 = 10 ,y = 10), FALSE)
 
@@ -354,20 +359,19 @@ p1<-ggplot(out.m, aes(x=time, y=value, group=Species)) +
 
   labs(x = "Time",
        y = "Species density",
-       title = "Figure 7. Time evolution of the prey and predator densities in the two-prey, one predator model") +
+       title = "Figure 8. Time evolution of the prey and predator densities in the two-prey, one predator model") +
    theme(plot.title = element_text(size=7)) 
 
-p1
 
 p0<-ggplot(out.m2, aes(x=time, y=value, group=Species)) +
   geom_line(aes(color=Species), size = 1)+
 
   labs(x = "Time",
        y = "Species density",
-       title = "Figure 8. Time evolution of the prey and predator densities in the two-prey, one predator model") +
+       title = "Figure 7. Time evolution of the prey and predator densities in the two-prey, one predator model") +
    theme(plot.title = element_text(size=7)) 
-
 p0
+p1
 
 p2<-ggplot(out, aes(x=x, y=y))+
   geom_point(aes(color="red"))+ 
@@ -375,20 +379,24 @@ p2<-ggplot(out, aes(x=x, y=y))+
        y = "Predator density",
        title = "Phase space of prey and predator densities")
 #p2
-params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), values =
-                        c(0.1,0.15,0.02,0.025,100,100,0.3,
-                          0.3,0.4, 0.02, 0.04, 30,10,10))
-params5 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), values =
-                        c(0.1,0.15,0.02,0.02,100,100,0.3,
-                          0.3,0.4, 0.02, 0.02, 30,10,10))
+params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), value =
+                        c(0.13,0.15,0.02,0.025,100,100,0.3,
+                          0.3,0.4, 0.02, 0.04, 30,30,10))
+params5 <- data.frame(parameter = c("a1", "a2", "b1", "b2", "K1","K2","tau1","tau2","l","delta1","delta2","X1_0","X2_0","Y0"), value =
+                        c(0.13,0.15,0.02,0.02,100,100,0.3,
+                          0.3,0.4, 0.02, 0.02, 30,30,10))
 ```
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-kable(params4, caption = "Parameter values for the two-prey, one predator model")
-kable(params5, caption = "Parameter values for the two-prey, one predator model")
+kable(params5, caption = "Parameter values for the two-prey - one predator model")
+kable(params4, caption = "Parameter values for the modified, two-prey - one predator model")
 ```
 
 
+\newpage
 ## Discussion
+
+As one can see in *Figure 7* by letting the second prey reproduce faster means that the predator nearly kills all the preys from the first species, while meaintaining a stable state of its population. Also the second prey can sustain a bigger population in long term.  
+In *Figure 8* we can see that the in the modified system the population of the first prey species indeed converge faster to zero as I expected, due to the fact that the predators can hunt them down more easily. Also the predator population converges to an equilibrium a bit higher than in the unmodified system.
 
 # Stock market application
 
@@ -399,6 +407,9 @@ In order for this to be profitable financially, the predator needs to have an
 estimate of the risk involved in this trade and this is based on changes in his
 predatory share prices.  
 Analyzing the simulation results can allow the trader to find the specific parameters which makes the system stable, and this would allow determine if the acquistion of prey company shares is profitable, or not.  
+\newpage
+The equations describing the problem are a modified one predator - two prey model, with a competitive interaction term between the preys, which simulates the competition on the free market between the firms. The equations can be seen below. Note that I used a slightly different notations for the parameters from the previous models to be more aligned with the original article.
+
 $$
 \frac{X_{1}}{dt} = \alpha_{1}X_{1}\left ( 1-\frac{X_{1}}{K_{1}} \right )-m_{12}X_{1}X_{2} - \beta X_{1}Yr_{1}
 $$
@@ -423,14 +434,14 @@ $$
 *  $\alpha_{1}$ and $\alpha_{2}$: Intrinsic growth rate of prey share price,  
 *  $K_{1}$ and $K_{2}$: Carrying capacity of prey shares,  
 *  $m_{12}$ and $m_{21}$: Inter-specific competition between prey market shares,  
-*  $beta_{1}$ and $beta_{2}$: Predatory capture rate  is the probability predator $Y$ invests in prey $X_{1}$ or $X_{2}$,  
+*  $\beta_{1}$ and $\beta_{2}$: Predatory capture rate  is the probability predator $Y$ invests in prey $X_{1}$ or $X_{2}$,  
 * $a_{1}$ and $a_{2}$: Harvesting rate of prey shares,  
 * $b_{1}$ and $b_{2}$: Anti-predator behavior of prey shares,  
 * $c_{1}$ and $c_{2}$: Rate of conversion of prey shares to predator shares,  
 * $\mu$: Rate of decline of predator share price,  
 * $n$ : Multiplicative effect due to the predatory functional response.  
 
-
+I reproduced two results from the original article, where I ran simulations with parameter values which gave a stable (*Figure 9*), and unstable (*Figure 10*) results. Then I tried to modify the $\beta_{2}$ parameter for the second company in such a way, that the predator company invest more often to this second company. If the system is not so robust for this change, then I expect that it is going to destabilize the whole ecosystem, and drives the companies into bankruptcy (*Figure 11*). The parameters for the three simulations are summarised in *Table 6*.
 
 
 
@@ -502,15 +513,21 @@ p3<-ggplot(out.m.stable_mod, aes(x=time, y=value, group=variable)) +
        title = paste("Figure 10. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state")) +
    theme(plot.title = element_text(size=8)) 
 
-params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2","alpha1","alpha2","beta1","beta2", "K1","K2","m12","m21","mu","n","c1","c2","X1_0","X2_0","Y0"), values =
+params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2","alpha1","alpha2","beta1","beta2", "K1","K2","m12","m21","mu","n","c1","c2","X1_0","X2_0","Y0"), value =
                         c(0.02,1.5, 0.01,0.03,0.04, 0.05, 0.03,                         0.03,5,10,0.01,0.02,0.02,1,0.1,0.2,0.5644,3.3233,0.7406))
 grid.arrange(p1, p2, nrow=2)
 p3
 
-kable(params4)
+
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+kable(params4, caption = "Parameter values for the modified, two-prey - one predator model")
 ```
 
 ## Discussion
+
+In *Figure 9-10* can be seen that I succesfully reproduced the results presented in the article. In *Figure 11* one can see that by changing the $\beta_{2}$ parameter, it caused the second prey and the predatory company to go nearly bankrupt, but not the first one. This is not what I expected, but can be explained. I think by letting the predator company to buy too much of the shares of the second prey company, it is causing a destabilisation regarding them, and the first prey company can reach its prey limit capacity independently from them. Nevertheless, it is an interesting result, and need to be explore further.
 
 ### Meaning of the parameters and the stability in the financial world  
 
@@ -523,10 +540,8 @@ Therefore, a predator company who wishes to invest in either of these companies 
 
 # Summary
 
-What I did
+In this project I simulated multiple predator-prey models, and discussed their results. I validated two of my hypotheses about the outcome of the simulations if I modify their initial parameters. Last but not least I recreated the results of an article, which applies a specific predator-prey model to a financial problem. 
 
-The stock market also has equilibrium, so it behaves like an ecosystem and
-understanding the ramifications of these mechanisms can provide the investor
-with insights that yield competitive advantages [4].
+
 
 # References
