@@ -492,29 +492,33 @@ out.m.stable_mod$variable[out.m.stable_mod$variable == "x1"] <- "Prey1"
 out.m.stable_mod$variable[out.m.stable_mod$variable == "x2"] <- "Prey2"
 out.m.stable_mod$variable[out.m.stable_mod$variable == "y"] <- "Predator"
 
-p1<-ggplot(out.m.stable, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable), size = 1)+
+names(out.m.stable) <- c("Species", "value", "time")
+names(out.m.unstable) <- c("Species", "value", "time")
+names(out.m.stable_mod) <- c("Species", "value", "time")
+
+p1<-ggplot(out.m.stable, aes(x=time, y=value, group=Species)) +
+  geom_line(aes(color=Species), size = 1)+
   labs(x = "Time",
        y = "Relative price per share",
        title = paste("Figure 9. Time evolution of the relative share price of the ",'\n',"prey and predator companies in equilibrium")) +
    theme(plot.title = element_text(size=8)) 
 
-p2<-ggplot(out.m.unstable, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable), size = 1)+
+p2<-ggplot(out.m.unstable, aes(x=time, y=value, group=Species)) +
+  geom_line(aes(color=Species), size = 1)+
   labs(x = "Time",
        y = "Relative price per share",
        title = paste("Figure 10. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state")) +
    theme(plot.title = element_text(size=8)) 
 
-p3<-ggplot(out.m.stable_mod, aes(x=time, y=value, group=variable)) +
-  geom_line(aes(color=variable), size = 1)+
+p3<-ggplot(out.m.stable_mod, aes(x=time, y=value, group=Species)) +
+  geom_line(aes(color=Species), size = 1)+
   labs(x = "Time",
        y = "Relative price per share",
-       title = paste("Figure 10. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state")) +
+       title = paste("Figure 10. Time evolution of the relative share price of the ",'\n',"prey and predator companies in an unstable state, with modification")) +
    theme(plot.title = element_text(size=8)) 
 
 params4 <- data.frame(parameter = c("a1", "a2", "b1", "b2","alpha1","alpha2","beta1","beta2", "K1","K2","m12","m21","mu","n","c1","c2","X1_0","X2_0","Y0"), value =
-                        c(0.02,1.5, 0.01,0.03,0.04, 0.05, 0.03,                         0.03,5,10,0.01,0.02,0.02,1,0.1,0.2,0.5644,3.3233,0.7406))
+                        c(0.02,"1.5 | 3.5 | 1.5", 0.01,0.03,0.04, 0.05, 0.03,                         "0.03 | 0.03 | 0.04",5,10,0.01,0.02,0.02,1,0.1,0.2,0.5644,3.3233,0.7406))
 grid.arrange(p1, p2, nrow=2)
 p3
 
@@ -522,7 +526,7 @@ p3
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-kable(params4, caption = "Parameter values for the modified, two-prey - one predator model")
+kable(params4, caption = "Parameter values for predator-prey model in a financial setting. The parameters of the three simulation are separarted by a |, where changed")
 ```
 
 ## Discussion
