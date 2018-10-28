@@ -14,19 +14,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 \newpage
 
-# Motivation
+# 1. Motivation
 
 What if we can simulate the complex behavior and interaction of certain species which compete, or work together? Can we model a food chain with only simple equations? What is the relationship between foxes and rabbits in the forest, and the chaotic nature of the stock market?  
 When I chose this topic, I have found fascinating how mechanisms which seemingly do not have very much in common could relate to each other. In the next few pages I present a model and its extension which can describe certain aspects of our world in a new way. 
 
-# Introduction
+# 2. Introduction
 
 Predator-prey models are important topics not only in biology, but in other fields like plasma physics[@0741-3335-56-1-015002], economics[@APEDAILLE19941], or even in criminology [@Sooknanan2016AMP].  
 The first, simplest model originated from the study of fish populations of the Mediterranean after the first world war, by Lotka and Volterra. In their model there are two types of species: the prey, and the predator. They form a simple food-chain where the predator species hunts the prey species, while the prey grazes vegetation. Their behavior and the time evolution of the number of species are characterized by a simple system of two, nonlinear first order differential equations. By solving these equations, we can have insights on how the number of predators and preys evolve in time.  
 In this document I present the classical Lotka-Volterra (LV) equations and its modified versions. I also reproduce a financial model described in [@stock], which can be used by a stock market trader to eliminate some of its risks involving the trading of specific stocks by buying the shares of so-called prey companies, and sell them to a predator company. The stock market also has equilibrium, so it behaves like an ecosystem and understanding the ramifications of these mechanisms can provide the investor
 with insights that yield competitive advantages.
 
-# Project goals
+# 3. Project goals
 
 In this project I first implement, evaluate and interpret the simplest of the predator-prey models, and using the results I build more complex models, which can be applied in a financial setting. The following models are going to be investigated:  
 
@@ -36,35 +36,35 @@ In this project I first implement, evaluate and interpret the simplest of the pr
 * LV model with one predator - two preys without interaction between the preys
 * LV model with one predator - two preys, in a financial setting
 
-## My own contribution to the topic
+## 3.1 My own contribution to the topic
 
 The first three models are discussed in the primary book which the course is based on already ([@willeybook]), but was implemented in Python and I used a sligthly modified version of the equations which was presented there. My own contribution to these tasks is to recreate them using R and its DeSolve library and to validate my further results.  
 The one predator - two-prey model was discussed in [@ELETTREBY20092018] and [@comp], but with an interaction term, either synergistic or competitive, included between the preys, so I found it interesting if I can analyze the results without the interactions.  
 Finally, I recreated the financial model presented in [@stock], and evaluated it at a certain parameter set, which gives a stable, and an unstable result.
 
-# Materials and methods
-## R programming language
+# 4. Materials and methods
+## 4.1 R programming language
 R is a language and environment for statistical computing and graphics. It is a GNU project which is similar to the S language and environment which was developed at Bell Laboratories (formerly AT&T, now Lucent Technologies) by John Chambers and colleagues. R provides a wide variety of statistical (linear and nonlinear modelling, classical statistical tests, time-series analysis, classification, clustering, …) and graphical techniques, and is highly extensible. 
 I created this document using RStudio, and it was generated with the RMarkdown framework.
 
-## ggplot2 library
+## 4.2 ggplot2 library
 **ggplot2** is an R library for creating graphics, based on the The Grammar of Graphics. It has been created by Hadley Wickham and is part of the tidyverse project. [@ggplot]
 
-## DeSolve library
+## 4.3 DeSolve library
 
 R package deSolve is the successor of R package odesolve, which is a package to solve initial value problems (IVP) of ordinary differential equations (ODE), differential algebraic equations (DAE), partial differential equations (PDE), and delay differential equations (DeDE). I used this package to solve the systems of nonlinear differential equations present in predator-prey models.  
 The particular function I used for the solutions is the *lsoda* function   
 
 [@link].
 
-## Possible source of errors
+## 4.4 Possible source of errors
 
 When integrating differential equations, one must always take the step-error into account. Derivatives require small differences which are prone to subtractive cancelations and round-off error accumulation. When I solve the simplest LV model, one can observe that the limit cycles do not form closed curves, which is due to the errors mentioned before.  
 Also I tried to set the time intervals big enough to see meaningful information on the plots and I used an appropriate resolution on these intervals to avoid further errors.  
 
 \newpage
 
-# Classical LV model
+# 5. Classical LV model
 
 This model describes the interaction of a predatory and a prey species. The predators try to catch the preys, thus increasing their population, and decreasing the prey’s. In this model the prey species has unlimited resources to feed, and in this way the population of the prey species grows exponentially if no predatory species are present. We can summarize the whole model in a system of nonlinear differential equations:
 $$
@@ -232,13 +232,13 @@ grid.arrange(p3, p4, ncol=2)
 kable(params2, caption = "Parameter values for the simplest LV model in equilibrium")
 ```
 
-## Discussion  
+## 5.1 Discussion  
 
 On *Figure 1* one can see that the solution of this model is an oscillatory behavior, where the prey and predator density rise and fall out of phase respect to each other. Plotting the $x$, $y$ phase space on *Figure 2* shows closed orbits, called limit cycles. However, the orbits are not perfectly closed due to the errors in the numerical integration of the equations (but cannot be seen in this resolution).  
 In *Figure 3* and *Figure 4* we can see the solution for the equilibrium state, which gives us a constant value both for the prey and predator densities, and the representation in the phase space is a single point as we expected.  
 
 
-# LV model with prey limit and predator efficiency
+# 6. LV model with prey limit and predator efficiency
 
 This model extends the classical LV model in such a way, that it includes a so called $K$ carrying capacity for the prey population, and $\tau$ as the time a predator spends handling a single prey. These two parameters make the model more realistic, as in reality the resources available for the preys are not unlimited, and the hunt by the predators are not always successful, and takes time. 
 The equations describing this system is the following:
@@ -298,12 +298,12 @@ kable(params3, caption = "Parameter values for the LV model with prey limit and 
 ```
 
 
-## Discussion
+## 6.1 Discussion
 
 As we can see in *Figure 5* the two species density oscillates with these initial parameters, but they dampen down after some time and converges to an equilibrium. Depending on $b$, the result could be also an overdamped, oscillation-free function, or a limit cycle. We should note that, that the equations can be extended with predator limit as well. 
 
 
-# Two preys, one predator LV model
+# 7. Two preys, one predator LV model
 
 This modification of the original LV model includes the extensions mentioned above, and also includes one more prey species. In reality there can be preys which can be hunted down more easily by the predator, and could have different carrying capacity. These biological information are included in the parameters of this model. 
 
@@ -394,12 +394,12 @@ kable(params4, caption = "Parameter values for the modified, two-prey - one pred
 
 
 \newpage
-## Discussion
+## 7.1 Discussion
 
 As one can see in *Figure 7* by letting the second prey reproduce faster means that the predator nearly kills all the preys from the first species, while maintaining a stable state of its population. Also the second prey can sustain a bigger population in long term.  
 In *Figure 8* we can see that the in the modified system the population of the first prey species indeed converge faster to zero as I expected, due to the fact that the predators can hunt them down more easily. Also, the predator population converges to an equilibrium a bit higher than in the unmodified system.
 
-# Stock market application
+# 8. Stock market application
 
 Within recent times, application of models which originate from biology have become used in finance to describe the complex behavior of the stock market. There are multiple approaches [@GHEZZI1992371] which tries to apply the slightly modified version of the predator-prey models to analyze how venture capital investments exhaust the available stock of opportunities. A trader would be likely to make a more informed choice between competing stocks or shares based on comparisons among prices per share.  
 In the model described in this chapter the financially powerful trading company who wants to acquire smaller, financially weak companies, is the predator, while the smaller companies represent the prey. The predator makes a monetary offer for the prey shares. Once purchased, these shares are held until they are converted to predator shares.  
@@ -530,11 +530,11 @@ p3
 kable(params4, caption = "Parameter values for predator-prey model in a financial setting. The parameters of the three simulation are separarted by a |, where changed.")
 ```
 
-## Discussion
+## 8.1 Discussion
 
 In *Figure 9-10* can be seen that I successfully reproduced the results presented in the article. In *Figure 11* one can see that by changing the $\beta_{2}$ parameter, it caused the second prey and the predatory company to go nearly bankrupt, but not the first one. This is not what I expected, but can be explained. I think by letting the predator company to buy too much of the shares of the second prey company, it is causing a destabilization regarding them, and the first prey company can reach its prey limit capacity independently from them. Nevertheless, it is an interesting result, and need to be explore further.
 
-### Meaning of the parameters and the stability in the financial world  
+### 8.1.1 Meaning of the parameters and the stability in the financial world  
 
 The *a1*, *a2*, *b1*, *b2* parameters represents the predatory functions, and in more detail the harvesting rate and the anti-predatory behavior of the preys.
 These represent the harvesting rate of prey and anti-predator behavior of prey respectively. In the financial world, these are taken to be the equity risk premium (excess returns based on investment in the stock market) and price volatility index (a measure of risk in terms of ‘investor fear’ in the stock market) respectively from the two prey stocks.
@@ -543,10 +543,10 @@ The parameters *c1* and *c2*, which naturally represents in biology the conversi
 Therefore, a predator company who wishes to invest in either of these companies can be advised that if the stock parameters of those companies are kept within the stability intervals, their investment would be stable and profitable. Otherwise, parameters outside of these intervals would cause the model to become unstable and therefore it would not be wise to invest. [@stock]
 
 
-# Summary
+# 9. Summary
 
 In this project I simulated multiple predator-prey models, and discussed their results. I validated two of my hypotheses about the outcome of the simulations if I modify their initial parameters. Last, but not least I recreated the results of an article, which applies a specific predator-prey model to a financial problem. 
 
 
 
-# References
+# 10. References
